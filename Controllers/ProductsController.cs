@@ -20,8 +20,17 @@ namespace PocProductsMS.Controllers
         public IActionResult GetProducts()
         {
             // Retrieve the parent and its children using a DTO to prevent Cyclic error:
-            var query = _dbContext.Products.Include(a => a.Companies).ToList();
-            return Ok(query);
+            // var query = _dbContext.Products.Include(a => a.Companies).ToList();
+            var productDtos = _dbContext.Products
+                .Include(p => p.Companies)
+                .Select(p => new ProductDto {
+                    Id = p.Id,
+                    Companies = p.Companies.Select(c => 
+                            new CompanyDto() { Id = c.Id, Name = c.Name}).ToList(),
+                    Name = p.Name,
+                    Price = p.price
+                });
+            return Ok(productDtos);
         } 
     }
 }
